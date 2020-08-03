@@ -1,6 +1,6 @@
 const WIDTH = 15,
   HEIGHT = 15,
-  COUNT = 1;
+  COUNT = 30;
 let randarArr = [];
 let randarDom = document.getElementById("map");
 let flagCount = 0;
