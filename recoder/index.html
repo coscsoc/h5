@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="can"></canvas> <br>
+    <input type="text" id="addElement">
+    <button onclick="add()">增加节点</button><br>
+    <button onclick="getMin()">获取最小节点</button><br>
+    <button onclick="getMax()">获取最大节点</button><br>
+    <input type="text" id="getElement">
+    <button onclick="get()">获取节点</button><br>
+    <button onclick="removeMin()">删除最小节点</button><br>
+    <button onclick="removeMax()">删除最大节点</button><br>
+    <input type="text" id="removeElement">
+    <button onclick="remove()">删除节点</button><br>
+    <button onclick="preOrder()">前序遍历</button>
+    <button onclick="inOrder()">中序遍历</button>
+    <button onclick="postOrder()">后序遍历</button>
+</body>
+<script src="./main.js"></script>
+<script>
+    const bst = new BST()
+    window.onload = function () {
+        for (let i = 0; i < 15; i++) {
+            bst.add(~~(Math.random() * 20))
+        }
+        console.group(bst.root);
+
+        console.log(bst.getDeep());
+        bst.render(can)
+    }
+
+
+    function add() {
+        let element = document.getElementById("addElement").value
+        bst.add(element)
+        bst.render(can)
+    }
+
+    function getMin() {
+        bst.initNodeColor()
+        let minNode = bst.getMin()
+        minNode.isCheck = true;
+        bst.render(can)
+    }
+    function getMax() {
+        bst.initNodeColor()
+        let maxNode = bst.getMax()
+        maxNode.isCheck = true;
+        bst.render(can)
+    }
+    function get() {
+        bst.initNodeColor()
+        let element = document.getElementById("getElement").value
+        let node = bst.getNode(element)
+        node && (node.isCheck = true)
+        bst.render(can)
+    }
+
+    function removeMin() {
+        bst.removeMin()
+        bst.render(can);
+    }
+    function removeMax() {
+        bst.removeMax()
+        bst.render(can);
+    }
+    function remove() {
+        let element = document.getElementById("removeElement").value
+        bst.remove(element)
+        bst.render(can)
+    }
+
+
+
+    function preOrder() { bst.preOrder(can) }
+    function inOrder() { bst.inOrder(can) }
+    function postOrder() { bst.postOrder(can) }
+</script>
+
+</html>
