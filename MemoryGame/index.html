@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        body {
+            padding: 0px;
+            margin: 0px
+        }
+
+        #container {
+            height: 100vh
+        }
+
+        #main {
+            margin: 0 auto;
+            width: 375px
+        }
+
+        img {
+            width: 80px;
+            height: 80px;
+            border-radius: 10px;
+        }
+
+        .cell {
+            display: inline-block;
+            border-radius: 10px;
+            box-shadow: 5px 5px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+            width: 80px;
+            height: 80px;
+            margin: 5px
+        }
+
+        .cell-img {
+            position: absolute
+        }
+
+        .back-img {
+            position: relative
+        }
+
+        .back-hidden {
+            margin-left: -80px;
+            margin-top: -80px;
+            -webkit-animation: hidden 0.3s;
+        }
+
+        @-webkit-keyframes hidden {
+            0% {
+                margin-left: 0px;
+                margin-top: 0px;
+            }
+
+            100% {
+                margin-left: -80px;
+                margin-top: -80px;
+            }
+        }
+
+        .back-show {
+            margin-left: 0px;
+            margin-top: 0px;
+            -webkit-animation: show 0.3s;
+        }
+
+        @-webkit-keyframes show {
+            0% {
+                margin-left: -80px;
+                margin-top: -80px;
+            }
+
+            100% {
+                margin-left: 0px;
+                margin-top: 0px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="container">
+        <div id="main"></div>
+    </div>
+</body>
+<script>
+    let list = Array.from({ length: 8 }, (_, i) => i + 1);
+    list.push(...list);
+
+    let preImg;
+    let count = 0;
+
+    for (let i = 0; i < list.length; i++) {
+        let k1 = ~~(Math.random() * list.length)
+        let k2 = ~~(Math.random() * list.length)
+        let item = list[k1]
+        list[k1] = list[k2]
+        list[k2] = item
+    }
+    window.onload = function () {
+        let cellHtml = ""
+        for (let i = 0; i < list.length; i++) {
+            cellHtml += `
+                <div class="cell">
+                    <img src="./img/${list[i]}.jpeg" class="cell-img"/>
+                    <img src="./img/back.jpeg" id="${list[i]}" class="back-img"/>    
+                </div>
+            `
+            document.getElementById("main").innerHTML = cellHtml
+        }
+
+        let imgList = document.getElementsByClassName('back-img')
+        for (let i = 0; i < imgList.length; i++) {
+            let currentImg = imgList[i]
+            currentImg.onclick = function () {
+                let pre = preImg
+                currentImg.className = "back-img back-hidden"
+                if (pre) {
+                    console.log(pre.id, currentImg.id);
+                    if (pre.id != currentImg.id) {
+                        setTimeout(() => {
+                            pre.className = "back-img back-show"
+                            currentImg.className = "back-img back-show"
+                        }, 500)
+                    } else {
+                        if (++count == 8) {
+                            setTimeout(() => {
+                                alert("you win")
+                            }, 500)
+                        }
+                    }
+                    preImg = null
+                } else {
+                    preImg = currentImg
+                }
+            }
+        }
+
+    }
+</script>
+
+</html>
