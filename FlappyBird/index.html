@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Document</title>
+        <style>
+            body {
+                text-align: center;
+            }
+            #game {
+                width: 500px;
+                height: 500px;
+                border-radius: 50px;
+                background: url(./img/sky.png);
+                position: relative;
+                margin: 0 auto;
+                overflow: hidden;
+            }
+            .pipeUp {
+                background: url(./img/pipe2.png) bottom center;
+                position: absolute;
+                width: 52px;
+                top: 0;
+            }
+            .pipeDown {
+                background: url(./img/pipe1.png) top center;
+                position: absolute;
+                width: 52px;
+                bottom: 0;
+            }
+            #showScore {
+                color: #0000cc;
+                font-size: 30px;
+                position: absolute;
+                margin-left: 30px;
+            }
+            #bird {
+                width: 34px;
+                height: 26px;
+                left: 100px;
+                position: absolute;
+                background: url(img/birds.png) -8px -10px no-repeat;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="bird1"></div>
+        <div id="game">
+            <div id="sky">
+                <div id="bird"></div>
+            </div>
+            <div id="showScore">32</div>
+        </div>
+        <div>
+            重新开始:
+            <button onclick="restart()">restart</button>
+            加速:
+            <button onclick="speedUp()">speed up</button>
+            减速:
+            <button onclick="speedDown()">speed down</button>
+            <span>
+                当前速度:
+                <span id="showSpeed"></span>
+            </span>
+            <br />
+            <button id="goldfinger" onclick="goldFinger()">金手指</button>
+        </div>
+    </body>
+    <script>
+        let gameover = false,
+            pipeNum = 4,
+            speed = 1,
+            g = 1.5,
+            birdTop = 200,
+            positionX = 0,
+            score = 1,
+            useGoldFinger = false,
+            //上下pipe间距
+            pipeSpacing = 150;
+        function goldFinger() {
+            if (useGoldFinger) {
+                useGoldFinger = false;
+                goldfinger.innerHTML = "金手指关";
+            } else {
+                useGoldFinger = true;
+                goldfinger.innerHTML = "金手指开";
+            }
+        }
+        function speedUp() {
+            g += 0.5;
+            speed++;
+        }
+        function speedDown() {
+            g -= 0.5;
+            speed--;
+        }
+
+        function flappyGame() {
+            //repeat 图片重复
+            game.style.backgroundPositionX = `${positionX--}px`;
+        }
+
+        function Bird() {
+            this.left = 100;
+            this.top = 200;
+        }
+        let birdClass = new Bird();
+        function flappyBird() {
+            birdClass.top += g;
+            bird.style.top = `${birdClass.top}px`;
+            //if (birdClass.top > 475 || birdClass.top < 0) g = -g;
+        }
+
+        function Pipe(position) {
+            this.x = position;
+            this.pipeUpHeight = ~~(Math.random() * 120 + pipeSpacing); //[150,270)
+            this.pipeDownHeight = 500 - this.pipeUpHeight - pipeSpacing; //(80,200]
+            let pipeUp = document.createElement("div");
+            pipeUp.className = "pipeUp";
+            pipeUp.style.height = `${this.pipeUpHeight}px`;
+            pipeUp.style.left = `${this.x}px`;
+
+            let pipeDown = document.createElement("div");
+            pipeDown.className = "pipeDown";
+            pipeDown.style.height = `${this.pipeDownHeight}px`;
+            pipeDown.style.left = `${this.x}px`;
+
+            this.flappyPipe = function () {
+                this.x -= g;
+                pipeUp.style.left = this.x + "px";
+                pipeDown.style.left = this.x + "px";
+                pipeUp.style.height = this.pipeUpHeight + "px";
+                pipeDown.style.height = this.pipeDownHeight + "px";
+
+                //刷新pipe
+                if (this.x < -52) {
+                    this.x = 600;
+                    score++;
+                    this.pipeUpHeight = ~~(Math.random() * 120) + pipeSpacing;
+                    this.pipeDownHeight = 500 - this.pipeUpHeight - pipeSpacing;
+                }
+                if (!gameover) {
+                    this.appendPipe();
+                }
+                //左边界,右边界,上边界
+                if (
+                    this.x < birdClass.left + 34 &&
+                    this.x + 52 > birdClass.left &&
+                    this.pipeUpHeight > birdClass.top
+                ) {
+                    //上柱子
+                    gameover = true;
+                    alert(`分数${score}`);
+                } else if (
+                    this.x < birdClass.left + 34 &&
+                    this.x + 52 > birdClass.left &&
+                    this.pipeDownHeight + birdClass.top + 26 > 500
+                ) {
+                    //下柱子
+                    gameover = true;
+                    alert(`分数${score}`);
+                }
+
+                if (useGoldFinger) {
+                    //上一个柱子右边界,这个柱子右边界
+                    if (
+                        this.x < birdClass.left + 150 &&
+                        this.x + 52 > birdClass.left &&
+                        birdClass.top + this.pipeDownHeight < 500 &&
+                        birdClass.top + this.pipeDownHeight + ~~(pipeSpacing / 2) > 500
+                    ) {
+                        birdClass.top -= 2 * g;
+                    } else if (
+                        this.x < birdClass.left + 150 &&
+                        this.x + 52 > birdClass.left &&
+                        birdClass.top + this.pipeDownHeight + 26 > 500
+                    ) {
+                        console.log(2);
+                        birdClass.top -= 3 * g;
+                    }
+                }
+            };
+            this.appendPipe = function () {
+                game.appendChild(pipeUp);
+                game.appendChild(pipeDown);
+            };
+            this.removePipe = function () {
+                game.removeChild(pipeUp);
+                game.removeChild(pipeDown);
+            };
+        }
+
+        let pipe1, pipe2, pipe3, pipe4, pipeFlappy1, pipeFlappy2, pipeFlappy3, pipeFlappy4;
+
+        function initPipe() {
+            pipe1 = new Pipe(200);
+            pipe2 = new Pipe(350);
+            pipe3 = new Pipe(500);
+            pipe4 = new Pipe(650);
+            pipeFlappy1 = setInterval(() => pipe1.flappyPipe(), 20);
+            pipeFlappy2 = setInterval(() => pipe2.flappyPipe(), 20);
+            pipeFlappy3 = setInterval(() => pipe3.flappyPipe(), 20);
+            pipeFlappy4 = setInterval(() => pipe4.flappyPipe(), 20);
+        }
+
+        let gameTimer, birdTimer, scoreTimer, gameoverTimer;
+        function initTimer() {
+            gameTimer = setInterval(() => flappyGame(), 10);
+            birdTimer = setInterval(() => flappyBird(), 20);
+            scoreTimer = setInterval(() => {
+                showScore.innerHTML = score;
+                showSpeed.innerHTML = "X" + speed;
+            });
+            gameoverTimer = setInterval(() => {
+                if (gameover) {
+                    score = 1;
+                    clearTimeout(gameTimer);
+                    clearTimeout(birdTimer);
+                    clearTimeout(gameoverTimer);
+                    clearTimeout(pipeFlappy1);
+                    clearTimeout(pipeFlappy2);
+                    clearTimeout(pipeFlappy3);
+                    clearTimeout(pipeFlappy4);
+                }
+            });
+        }
+
+        window.onload = function () {
+            initTimer();
+            initPipe();
+        };
+        window.onmousedown = function (e) {
+            if (e.target.id != "game") return;
+            birdClass.top -= 60;
+        };
+        function restart() {
+            pipe1.removePipe();
+            pipe2.removePipe();
+            pipe3.removePipe();
+            pipe4.removePipe();
+            birdClass.top = 200;
+            gameover = false;
+            initTimer();
+            initPipe();
+        }
+    </script>
+</html>
