@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html >
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+    <style>
+        #map{
+          position: absolute;
+          top:50%;
+          left: 50%;
+          transform: translate(-50%,-50%);
+          border:3px solid;
+        }
+        .snackbody{
+            background-color: black;
+            width: 20px;
+            height: 20px;
+            position:absolute;
+        }
+        .snackfood{
+            background-color: red;
+            width: 20px;
+            height: 20px;
+            position:absolute;
+        }
+    </style>
+</head>
+<body>
+    <div id='map'></div>
+    <script>
+        //地图,蛇身大小
+        const WIDTH=20,HEIGHT=20,SIZE=20;
+        //蛇身数组
+        let snackArr=[],foodX,foodY,direction=[1,0],timer=null;
+         window.onload=function(){
+            let mapDom=document.getElementById('map'),speed=200;
+            mapDom.style.width=WIDTH*SIZE+'px';
+            mapDom.style.height=HEIGHT*SIZE+'px';
+            init();
+            creatFood();
+           timer=setInterval(function(){
+                check();
+                eatSelf();
+                if(isFood()){
+                    creatFood();
+                    addBody();
+                    speed+=50;
+                }
+                let snackHtml='';
+            for(let i=0;i<snackArr.length;i++){
+                snackHtml +="<div class='snackbody' data-num="+i+" style='left:"+snackArr[i].x*SIZE+"px;top:"+snackArr[i].y*SIZE+"px '></div>"
+            }
+            snackHtml +="<div class='snackfood' style='left:"+foodX*SIZE+"px;top:"+foodY*SIZE+"px '></div>"
+            mapDom.innerHTML=snackHtml;
+                move();
+            },150)
+        } 
+        //初始化蛇身
+        function init(){
+            snackArr=[{x:5,y:4},{x:4,y:4},{x:3,y:4}];
+        }
+        //初始化食物
+        function creatFood(){
+            foodX=Math.floor(Math.random()*WIDTH);
+            foodY=Math.floor(Math.random()*HEIGHT);
+        }
+        //移动蛇
+        function move(){
+            //使蛇后一节坐标等于前一节坐标
+            for(let i=snackArr.length-1;i>0;i--){
+                snackArr[i].x=snackArr[i-1].x;    
+                snackArr[i].y=snackArr[i-1].y;
+            }
+            //蛇头前进一步
+            snackArr[0].x +=direction[0];
+            snackArr[0].y +=direction[1];
+        }
+        //键盘操作
+        document.onkeydown=function(ev){
+            //左上右下37 38 39 40
+            switch (ev.keyCode) {
+                case 37: if(direction[0]!==1){direction=[-1,0];console.log('←')};break;
+                case 38: if(direction[1]!==1){direction=[0,-1];console.log('↑')};break;
+                case 39: if(direction[0]!==-1){direction=[1,0];console.log('→')};break;
+                case 40: if(direction[1]!==-1){direction=[0,1];console.log('↓')};break;
+            }
+        }
+        //判断蛇是否出界
+        function check(){
+            if(snackArr[0].x*SIZE==WIDTH*SIZE||snackArr[0].x*SIZE==-SIZE||snackArr[0].y*SIZE==-SIZE||snackArr[0].y*SIZE==HEIGHT*SIZE){
+                clearInterval(timer);
+                alert('游戏结束')
+            }
+        }
+        //吃到食物
+        function isFood(){
+            if(snackArr[0].x==foodX&&snackArr[0].y==foodY)return true;
+        }
+        //增加身体
+        function addBody(){
+            let last=snackArr[snackArr.length-1]
+            snackArr.push({x:last.x,y:last.y})
+        }
+        //吃到自己
+        function eatSelf(){
+            for(let i =1;i<snackArr.length;i++){
+                if(snackArr[0].x==snackArr[i].x&&snackArr[0].y==snackArr[i].y){
+                    clearInterval(timer);
+                    alert('游戏结束')
+                }
+            }        
+        }
+    </script>
+</body>
+</html>
